@@ -1,0 +1,62 @@
+{
+  "id": "session",
+  "type": "ae/room-session",
+  "version": "1.0.0",
+  "notes": "Provided by implementation/server/index.ts, worker.ts and web/live.ts. Routes and messages are in interfaces/wire.md. The directory object is not provided here: rooms call the DIRECTORY namespace, which the application binds to the class from room-directory (createDirectoryClass); see interfaces/required/room-directory.json.",
+  "settings": {
+    "applicationId": "string, in Settings",
+    "allowedOrigins": "string[], exact origins allowed to call the worker, in Settings",
+    "roomPrefix": "string including its separator, in Settings"
+  },
+  "types": {
+    "Settings": "{applicationId:string,allowedOrigins:string[],roomPrefix:string}",
+    "Services": "{identity:IdentityService,videoGrant?:(request:Request)=>Promise<Response>} (identity is the guest-identity component, see interfaces/required/guest-identity.json)",
+    "RoomInfo": "{id:string,status:string,playerCount:integer,names:string[]}"
+  },
+  "operations": {
+    "createRoomClass": {
+      "arguments": [
+        "adapter:GameAdapter",
+        "services:Services",
+        "settings:Settings"
+      ],
+      "returns": "class Room extends DurableObject (export a concrete subclass named Room)"
+    },
+    "createWorker": {
+      "arguments": [
+        "settings:Settings",
+        "roomIds:string[]",
+        "service?:(request:Request,env:RoomEnv)=>Promise<Response|null>"
+      ],
+      "returns": "{fetch(request:Request,env:RoomEnv):Promise<Response>}"
+    },
+    "json": {
+      "arguments": [
+        "body:unknown",
+        "status?:integer"
+      ],
+      "returns": "Response"
+    },
+    "Live": {
+      "arguments": [
+        "baseUrl:string",
+        "path:string",
+        "hello:()=>string",
+        "onMessage:(message)=>void",
+        "onDown:()=>void"
+      ],
+      "returns": "object with open(), close(), send(text)"
+    }
+  },
+  "routes": {
+    "POST /r/:room/join": "{name} returns {token,playerId,spectator,view,video}",
+    "POST /r/:room/display": "{} returns {token,view}",
+    "GET /r/:room/state?since=VERSION": "private view, long poll up to 25 seconds",
+    "POST /r/:room/action": "game fields plus expectedVersion",
+    "POST /r/:room/away": "records departure",
+    "GET /r/:room/room": "public summary RoomInfo",
+    "GET /r/:room/ws": "live connection",
+    "GET /rooms": "forwarded to the DIRECTORY object",
+    "GET /rooms/ws": "forwarded to the DIRECTORY object"
+  }
+}

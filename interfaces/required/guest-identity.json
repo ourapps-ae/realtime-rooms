@@ -1,0 +1,37 @@
+{
+  "id": "guest-identity",
+  "type": "ae/guest-identity",
+  "version": "1.0.0",
+  "notes": "The three operations a room calls on the guest-identity component, passed in as services.identity (IdentityService in implementation/server/adapter.ts; createIdentityApi(settings) from guest-identity satisfies it, with its name and rotation settings already bound). Each room keeps its own IdentityBook in its storage record; this component imports nothing from guest-identity.",
+  "types": {
+    "IdentityBook": "{records:{[id:string]:IdentityRecord}}",
+    "IdentityRecord": "{id:string,name:string,token:string,previousToken:string|null,issuedAt:number,lastSeenAt:number}",
+    "IdentityDeps": "{now:()=>number,newId:()=>string,newToken:()=>string}",
+    "IdentityResult<T>": "{ok:true,value:T}|{ok:false,error:{code:string,message:string}}"
+  },
+  "operations": {
+    "claim": {
+      "arguments": [
+        "book:IdentityBook",
+        "name:unknown",
+        "deps:IdentityDeps"
+      ],
+      "returns": "IdentityResult<{book:IdentityBook,id:string,token:string,rejoined:boolean}> (called on join; the guest's earlier token stops working; a refusal is answered 422 with the given code, for example badName)"
+    },
+    "authenticate": {
+      "arguments": [
+        "book:IdentityBook",
+        "token:string",
+        "deps:IdentityDeps"
+      ],
+      "returns": "{book:IdentityBook,id:string,name:string,rotatedToken:string|null}|null (called on every request and live message; a non-null rotatedToken is sent to the device in the x-rotated-token header or a {type:\"token\"} live message, and the room keeps the returned book)"
+    },
+    "release": {
+      "arguments": [
+        "book:IdentityBook",
+        "id:string"
+      ],
+      "returns": "IdentityBook (called when a player or spectator leaves)"
+    }
+  }
+}

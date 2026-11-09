@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "id": "counter",
+  "title": "Counter room example",
+  "status": "example",
+  "view": "component",
+  "focus": "rooms",
+  "definitions": [
+    {
+      "id": "ourapps-ae.realtime-rooms",
+      "name": "Realtime rooms",
+      "kind": "component",
+      "status": "example",
+      "package": "ourapps-ae/realtime-rooms",
+      "version": "0.5.0",
+      "ports": [
+        {
+          "id": "game",
+          "name": "Game adapter",
+          "direction": "input",
+          "kind": "interface",
+          "type": "ae/game-adapter",
+          "version": "1.0.0",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "id": "guest-identity",
+          "name": "Guest identity",
+          "direction": "input",
+          "kind": "interface",
+          "type": "ae/guest-identity",
+          "version": "1.0.0",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "id": "session",
+          "name": "Room session",
+          "direction": "output",
+          "kind": "interface",
+          "type": "ae/room-session",
+          "version": "1.0.0"
+        }
+      ],
+      "settings": []
+    },
+    {
+      "id": "counter",
+      "name": "Counter adapter",
+      "kind": "application",
+      "status": "example",
+      "revision": "0.1.0",
+      "ports": [
+        {
+          "id": "game",
+          "name": "Counter rules",
+          "direction": "output",
+          "kind": "interface",
+          "type": "ae/game-adapter",
+          "version": "1.0.0"
+        }
+      ],
+      "settings": []
+    },
+    {
+      "id": "identity",
+      "name": "Guest identity",
+      "kind": "application",
+      "status": "example",
+      "revision": "0.1.0",
+      "ports": [
+        {
+          "id": "guest-identity",
+          "name": "Guest identity",
+          "direction": "output",
+          "kind": "interface",
+          "type": "ae/guest-identity",
+          "version": "1.0.0"
+        }
+      ],
+      "settings": []
+    },
+    {
+      "id": "browser",
+      "name": "Browser",
+      "kind": "application",
+      "status": "example",
+      "revision": "0.1.0",
+      "ports": [
+        {
+          "id": "room",
+          "name": "Room session",
+          "direction": "input",
+          "kind": "interface",
+          "type": "ae/room-session",
+          "version": "1.0.0",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "settings": []
+    }
+  ],
+  "instances": [
+    {
+      "id": "counter",
+      "name": "Counter",
+      "definition": "counter",
+      "configuration": {}
+    },
+    {
+      "id": "identity",
+      "name": "Identity",
+      "definition": "identity",
+      "configuration": {}
+    },
+    {
+      "id": "rooms",
+      "name": "Rooms",
+      "definition": "ourapps-ae.realtime-rooms",
+      "configuration": {}
+    },
+    {
+      "id": "browser",
+      "name": "Browser",
+      "definition": "browser",
+      "configuration": {}
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "instance": "counter",
+        "port": "game"
+      },
+      "target": {
+        "instance": "rooms",
+        "port": "game"
+      }
+    },
+    {
+      "source": {
+        "instance": "identity",
+        "port": "guest-identity"
+      },
+      "target": {
+        "instance": "rooms",
+        "port": "guest-identity"
+      }
+    },
+    {
+      "source": {
+        "instance": "rooms",
+        "port": "session"
+      },
+      "target": {
+        "instance": "browser",
+        "port": "room"
+      }
+    }
+  ]
+}

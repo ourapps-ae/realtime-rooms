@@ -1,0 +1,57 @@
+{
+  "format": 1,
+  "jobs": [
+    "realtime-rooms"
+  ],
+  "profiles": [
+    {
+      "id": "free",
+      "load": {
+        "requestsPerDay": 100000,
+        "storedMegabytes": 5000
+      },
+      "cost": "free",
+      "regions": [
+        "any"
+      ],
+      "compliance": [],
+      "provider": {
+        "name": "Cloudflare Workers and Durable Objects (SQLite-backed)",
+        "tier": "Workers Free",
+        "limitsSource": "https://developers.cloudflare.com/workers/platform/limits/"
+      },
+      "notes": "Checked 2026-11-09. Workers Free: 100,000 requests per day (Error 1027 after that), 10 ms CPU per request. Durable Objects on Free are SQLite-backed only (this component's wrangler.jsonc uses new_sqlite_classes) with 5 GB total storage per account (https://developers.cloudflare.com/durable-objects/platform/limits/). The pages give no concurrent-connection limit, so concurrentPeople is omitted; the page does not say how incoming WebSocket messages count against the daily request limit, so requestsPerDay may overstate capacity for live-connection use. One Durable Object has a soft limit of 1,000 requests per second."
+    },
+    {
+      "id": "paid",
+      "load": {},
+      "cost": "metered",
+      "regions": [
+        "any"
+      ],
+      "compliance": [],
+      "provider": {
+        "name": "Cloudflare Workers and Durable Objects (SQLite-backed)",
+        "tier": "Workers Paid",
+        "limitsSource": "https://developers.cloudflare.com/workers/platform/limits/"
+      },
+      "notes": "Checked 2026-11-09. Workers Paid: no request limit, 5 minutes maximum CPU per request (30 seconds default), unlimited Durable Object storage per account and 10 GB per Durable Object (https://developers.cloudflare.com/durable-objects/platform/limits/). Prices were not on the fetched limits pages, so no cost figure is recorded here; usage is billed by metering."
+    },
+    {
+      "id": "own-hardware",
+      "load": {},
+      "cost": "none",
+      "regions": [
+        "any"
+      ],
+      "compliance": [],
+      "provider": {
+        "name": "Own hardware running the room code on Node through server-host",
+        "tier": "own-hardware",
+        "limitsSource": null
+      },
+      "notes": "No limit is recorded: the capacity of the owner's machine and network applies and was not measured. The room code is the same; server-host supplies the Node storage and connection stand-ins."
+    }
+  ],
+  "notes": "Local checks need no account. Deployment needs a Cloudflare account supplied by reference. Limits above come only from the two Cloudflare pages named in the profile notes. The own-hardware profile has no provider limits page; limitsSource is null."
+}

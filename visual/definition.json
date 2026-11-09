@@ -1,0 +1,39 @@
+{
+  "id": "ourapps-ae.realtime-rooms",
+  "name": "Realtime rooms",
+  "kind": "component",
+  "status": "example",
+  "package": "ourapps-ae/realtime-rooms",
+  "version": "0.5.0",
+  "ports": [
+    {
+      "id": "game",
+      "name": "Game adapter",
+      "direction": "input",
+      "kind": "interface",
+      "type": "ae/game-adapter",
+      "version": "1.0.0",
+      "required": true,
+      "cardinality": "one"
+    },
+    {
+      "id": "guest-identity",
+      "name": "Guest identity",
+      "direction": "input",
+      "kind": "interface",
+      "type": "ae/guest-identity",
+      "version": "1.0.0",
+      "required": true,
+      "cardinality": "one"
+    },
+    {
+      "id": "session",
+      "name": "Room session",
+      "direction": "output",
+      "kind": "interface",
+      "type": "ae/room-session",
+      "version": "1.0.0"
+    }
+  ],
+  "settings": []
+}

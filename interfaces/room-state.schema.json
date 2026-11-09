@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ae/room-state",
+  "title": "Room state 1.0.0",
+  "description": "What the Room Durable Objects keep in their own storage, and the ndjson lines used to export and import it. The game value is opaque to this component; the application's GameAdapter.restore reads or rejects it. The room list kept by the directory object is described by room-directory.",
+  "version": "1.0.0",
+  "$defs": {
+    "roomInfo": {
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "playerCount",
+        "names"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "playerCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Summary a room posts to the directory object (stored by room-directory)."
+    },
+    "roomRecord": {
+      "description": "Storage key \"room\" in each Room Durable Object (one object per room name).",
+      "type": "object",
+      "required": [
+        "schema",
+        "version",
+        "game",
+        "identity",
+        "spectators",
+        "displays"
+      ],
+      "properties": {
+        "schema": {
+          "const": 1,
+          "description": "Storage layout number passed to GameAdapter.restore."
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Visible version; increases with every game change."
+        },
+        "game": {
+          "description": "Application-owned serialisable game state (GameAdapter state S)."
+        },
+        "identity": {
+          "type": "object",
+          "required": [
+            "records"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "records": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "name",
+                  "token",
+                  "previousToken",
+                  "issuedAt",
+                  "lastSeenAt"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "token": {
+                    "type": "string"
+                  },
+                  "previousToken": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "issuedAt": {
+                    "type": "integer"
+                  },
+                  "lastSeenAt": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          },
+          "description": "The room's guest-identity book: one record per guest id with the current token, the token it replaced and when it was issued."
+        },
+        "spectators": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Spectator player id to name."
+        },
+        "displays": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Display token to last-seen milliseconds since the Unix epoch."
+        },
+        "roomId": {
+          "type": "string"
+        },
+        "listed": {
+          "type": "string",
+          "description": "JSON of [names, status] last published to the directory."
+        }
+      },
+      "additionalProperties": false
+    },
+    "header": {
+      "type": "object",
+      "required": [
+        "type",
+        "format",
+        "version",
+        "rooms"
+      ],
+      "properties": {
+        "type": {
+          "const": "header"
+        },
+        "format": {
+          "const": "ae/room-state"
+        },
+        "version": {
+          "const": "1.0.0"
+        },
+        "rooms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of room lines that follow."
+        }
+      },
+      "additionalProperties": false
+    },
+    "roomLine": {
+      "type": "object",
+      "required": [
+        "type",
+        "roomId",
+        "record",
+        "sha256"
+      ],
+      "properties": {
+        "type": {
+          "const": "room"
+        },
+        "roomId": {
+          "type": "string"
+        },
+        "record": {
+          "$ref": "#/$defs/roomRecord"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 of the record as JSON with keys sorted at every level."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/header"
+    },
+    {
+      "$ref": "#/$defs/roomLine"
+    }
+  ]
+}

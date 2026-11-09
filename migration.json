@@ -1,0 +1,51 @@
+{
+  "format": 1,
+  "stores": [
+    {
+      "id": "rooms",
+      "schema": {
+        "name": "ae/room-state",
+        "version": "1.0.0",
+        "file": "interfaces/room-state.schema.json"
+      },
+      "location": "Room Durable Object storage, key \"room\", one object per room name"
+    }
+  ],
+  "export": [
+    {
+      "format": "ndjson",
+      "portable": true,
+      "operation": "exportAll",
+      "description": "examples/migration.ts exportAll(snapshot): a header line, then one room line per room in sorted id order with a sha256 over its canonical JSON. The application reads the snapshot from storage (for example a protected route in a subclass of the Room class). The room list is exported by room-directory."
+    }
+  ],
+  "import": [
+    {
+      "format": "ndjson",
+      "portable": true,
+      "operation": "importAll",
+      "description": "examples/migration.ts importAll(text): verifies header, counts, checksums, duplicates and storage layout number, then returns records the application writes back with storage.put."
+    }
+  ],
+  "steps": [],
+  "verification": {
+    "counts": true,
+    "checksums": "sha256 per record over canonical JSON (keys sorted at every level)",
+    "sampleReadBack": 20,
+    "endToEnd": "tests/migration.test.ts"
+  },
+  "limits": {
+    "maxMegabytes": 5000,
+    "requiresStop": false,
+    "cannotPreserve": [
+      "open live connections and waiting long polls (clients reconnect)",
+      "scheduled alarms (set again by the next change in each room; a game clock waiting on an alarm resumes only after a request reaches that room)",
+      "ordering of changes made while the export runs",
+      "game state the new application's GameAdapter.restore rejects"
+    ]
+  },
+  "retention": {
+    "afterRemovalDays": 30
+  },
+  "notes": "maxMegabytes is the Workers Free account storage limit (5 GB) from https://developers.cloudflare.com/durable-objects/platform/limits/; a single stored room record must stay under 8 MB (key and value combined) on SQLite-backed objects. afterRemovalDays is the retention this package recommends for the exported file after the component is removed; Cloudflare keeps hosted objects until the owner deletes them. The export and import functions are real and tested; the storage read and write routes are written by the application because the extracted Room class has no export route."
+}
