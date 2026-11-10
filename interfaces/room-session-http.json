@@ -1,0 +1,752 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "ae/room-session",
+    "version": "1.0.0",
+    "description": "HTTP routes of the room service (createWorker in front of the Room objects). Every response carries CORS headers for allowed origins, which expose x-rotated-token; OPTIONS answers 204. Requests authenticate with Authorization: Bearer <token>. When guest-identity rotates a token the response carries x-rotated-token and the device keeps that token from then on; the replaced token works for one more rotation period. Unknown routes answer 404 badRequest. The application's own service routes run before /rooms and /r/.",
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "summary": "Health answer (also at /).",
+        "responses": {
+          "200": {
+            "description": "Running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "operationId": "root",
+        "summary": "Health answer.",
+        "responses": {
+          "200": {
+            "description": "Running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms": {
+      "get": {
+        "operationId": "listRooms",
+        "summary": "The room directory, cached for 3 seconds.",
+        "responses": {
+          "200": {
+            "description": "Every listed room.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoomInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms/ws": {
+      "get": {
+        "operationId": "watchRooms",
+        "summary": "Live room list; messages in room-session-live.json channel rooms.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Upgrade"
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "Switching to WebSocket."
+          },
+          "403": {
+            "description": "Origin not allowed."
+          }
+        }
+      }
+    },
+    "/r/{room}/join": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Room"
+        }
+      ],
+      "post": {
+        "operationId": "join",
+        "summary": "Join under a name. Joining again under the same name returns a new token and ends the old one.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Joined as a player or spectator.",
+            "headers": {
+              "x-rotated-token": {
+                "$ref": "#/components/headers/RotatedToken"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Joined"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request, a body over 4096 code units, or a game rule refused it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badRequest or a game code."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The game refused the join.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is a game code."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "guest-identity refused the name, or the game refused the join.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badName or a game code."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/r/{room}/display": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Room"
+        }
+      ],
+      "post": {
+        "operationId": "joinDisplay",
+        "summary": "A shared display: a room-owned token that never rotates and cannot act. At most six; idle display tokens expire after an hour when another display joins.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Display token and the public view.",
+            "headers": {
+              "x-rotated-token": {
+                "$ref": "#/components/headers/RotatedToken"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "token",
+                    "view"
+                  ],
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "view": {
+                      "description": "The game's view for this actor (GameAdapter type V, produced by adapter.view); application-owned."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request, a body over 4096 code units, or a game rule refused it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badRequest or a game code."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/r/{room}/display/leave": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Room"
+        }
+      ],
+      "post": {
+        "operationId": "leaveDisplay",
+        "summary": "Revokes the display token.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Revoked.",
+            "headers": {
+              "x-rotated-token": {
+                "$ref": "#/components/headers/RotatedToken"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request, a body over 4096 code units, or a game rule refused it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badRequest or a game code."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unknown display token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badToken."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/r/{room}/state": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Room"
+        }
+      ],
+      "get": {
+        "operationId": "state",
+        "summary": "The caller's private view; when since equals the current version, waits up to 25 seconds for a change.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "The version the caller holds."
+          },
+          {
+            "name": "options",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "description": "Other query parameters are the game's view options (adapter.options)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The view.",
+            "headers": {
+              "x-rotated-token": {
+                "$ref": "#/components/headers/RotatedToken"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The game's view for this actor (GameAdapter type V, produced by adapter.view); application-owned."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request, a body over 4096 code units, or a game rule refused it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badRequest or a game code."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unknown token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badToken."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/r/{room}/action": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Room"
+        }
+      ],
+      "post": {
+        "operationId": "action",
+        "summary": "A game action. Actions the adapter requires a version for must carry expectedVersion equal to the current version.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "type"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": true,
+                "description": "Game fields (adapter.parseAction) and view options."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The view after the action.",
+            "headers": {
+              "x-rotated-token": {
+                "$ref": "#/components/headers/RotatedToken"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The game's view for this actor (GameAdapter type V, produced by adapter.view); application-owned."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request, a body over 4096 code units, or a game rule refused it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badRequest or a game code."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unknown token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badToken."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "staleVersion (the table has changed; the current view is included) or a game code.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stale"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Displays cannot act, or the game refused the action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is notAllowed or a game code."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/r/{room}/away": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Room"
+        }
+      ],
+      "post": {
+        "operationId": "away",
+        "summary": "Records that the caller is leaving for now.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recorded.",
+            "headers": {
+              "x-rotated-token": {
+                "$ref": "#/components/headers/RotatedToken"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request, a body over 4096 code units, or a game rule refused it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badRequest or a game code."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unknown token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badToken."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/r/{room}/room": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Room"
+        }
+      ],
+      "get": {
+        "operationId": "roomSummary",
+        "summary": "The public summary.",
+        "responses": {
+          "200": {
+            "description": "Summary.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/r/{room}/ws": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Room"
+        }
+      ],
+      "get": {
+        "operationId": "liveRoom",
+        "summary": "Live connection; messages in room-session-live.json channel room.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Upgrade"
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "Switching to WebSocket."
+          },
+          "403": {
+            "description": "Origin not allowed."
+          },
+          "426": {
+            "description": "Not a WebSocket upgrade.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badRequest."
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "40 connections already open.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error",
+                  "description": "error is badRequest."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Health": {
+        "type": "object",
+        "required": [
+          "ok",
+          "app"
+        ],
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "app": {
+            "type": "string",
+            "description": "settings.applicationId"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RoomInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Room id."
+          },
+          "status": {
+            "type": "string",
+            "description": "Game status, as the adapter's summary gives it."
+          },
+          "playerCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Player names."
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "playerCount",
+          "names"
+        ],
+        "additionalProperties": false
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Stale": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "staleVersion or a game code."
+          },
+          "message": {
+            "type": "string"
+          },
+          "view": {
+            "description": "The game's view for this actor (GameAdapter type V, produced by adapter.view); application-owned."
+          }
+        },
+        "additionalProperties": false
+      },
+      "Ok": {
+        "type": "object",
+        "required": [
+          "ok"
+        ],
+        "properties": {
+          "ok": {
+            "const": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Joined": {
+        "type": "object",
+        "required": [
+          "token",
+          "playerId",
+          "spectator",
+          "view",
+          "video"
+        ],
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "playerId": {
+            "type": "string"
+          },
+          "spectator": {
+            "type": "boolean"
+          },
+          "view": {
+            "description": "The game's view for this actor (GameAdapter type V, produced by adapter.view); application-owned."
+          },
+          "video": {
+            "description": "The JSON answer of services.videoGrant, or null without video."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "parameters": {
+      "Room": {
+        "name": "room",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z-]+$"
+        },
+        "description": "One of the worker's room ids."
+      },
+      "Upgrade": {
+        "name": "upgrade",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "const": "websocket"
+        }
+      }
+    },
+    "headers": {
+      "RotatedToken": {
+        "description": "The token the device keeps from now on, when guest-identity rotated the presented one.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "A player, spectator or display token."
+      }
+    }
+  }
+}

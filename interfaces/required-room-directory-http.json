@@ -1,0 +1,199 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "ae/room-directory",
+    "version": "1.0.0",
+    "description": "Requests the Directory object answers (env.DIRECTORY.getByName(\"home\")). Rooms post their entry when their players or status change; the room service's worker reads the list for GET /rooms and forwards /rooms/ws. Any path other than /ws is the list.",
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://directory",
+      "description": "The object's own address; any host reaches it."
+    }
+  ],
+  "paths": {
+    "/": {
+      "parameters": [
+        {
+          "name": "x-code-version",
+          "in": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          },
+          "description": "The caller's deployment version; a different one restarts the object onto the new code."
+        }
+      ],
+      "get": {
+        "operationId": "list",
+        "summary": "Every room; fixed rooms first in order, then by id.",
+        "responses": {
+          "200": {
+            "description": "The list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoomEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "upsert",
+        "summary": "Stores the entry under its id and sends the list to every watcher.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomEntry"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Stored."
+          }
+        }
+      },
+      "delete": {
+        "operationId": "remove",
+        "summary": "Removes the room and sends the list to every watcher.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Room to remove; without it nothing is removed."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removed."
+          }
+        }
+      }
+    },
+    "/ws": {
+      "parameters": [
+        {
+          "name": "x-code-version",
+          "in": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          },
+          "description": "The caller's deployment version; a different one restarts the object onto the new code."
+        }
+      ],
+      "get": {
+        "operationId": "watch",
+        "summary": "Live list; messages in interfaces/room-directory-live.json.",
+        "parameters": [
+          {
+            "name": "upgrade",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "websocket"
+            }
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "Switching to WebSocket; the current list is sent at once."
+          },
+          "426": {
+            "description": "Not a WebSocket upgrade.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "maxConnections watchers already connected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RoomEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Room id."
+          },
+          "status": {
+            "type": "string",
+            "description": "Game status; statuses in openStatuses (default lobby) are open for joining."
+          },
+          "playerCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Player names."
+          },
+          "code": {
+            "type": "string",
+            "description": "Code people type to join; case, spaces and hyphens do not matter."
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "playerCount",
+          "names"
+        ],
+        "additionalProperties": false,
+        "description": "One room as the home list shows it (TypeScript RoomEntry, Swift and Kotlin RoomInfo)."
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "const": "badRequest"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

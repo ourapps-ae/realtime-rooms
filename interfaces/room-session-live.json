@@ -1,0 +1,313 @@
+{
+  "asyncapi": "3.1.0",
+  "info": {
+    "title": "ae/room-session",
+    "version": "1.0.0",
+    "description": "Live messages of the room service, from the server's side: receive is what clients send, send is what the server sends. Text frames; JSON messages except ping and pong. The server answers ping with pong without waking the room. A room connection is closed with 4000 when no hello arrives within 60 seconds, 4001 after an authentication failure, 4002 after 75 seconds of silence, and 1000 when the player has left. The client closing with 1000 or 1001 counts as a deliberate departure.",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "defaultContentType": "application/json",
+  "channels": {
+    "room": {
+      "address": "/r/{room}/ws",
+      "parameters": {
+        "room": {
+          "description": "One of the worker's room ids (lower-case letters and dashes)."
+        }
+      },
+      "messages": {
+        "hello": {
+          "$ref": "#/components/messages/hello"
+        },
+        "game": {
+          "$ref": "#/components/messages/game"
+        },
+        "ping": {
+          "$ref": "#/components/messages/ping"
+        },
+        "view": {
+          "$ref": "#/components/messages/view"
+        },
+        "token": {
+          "$ref": "#/components/messages/token"
+        },
+        "error": {
+          "$ref": "#/components/messages/error"
+        },
+        "pong": {
+          "$ref": "#/components/messages/pong"
+        }
+      }
+    },
+    "rooms": {
+      "address": "/rooms/ws",
+      "messages": {
+        "rooms": {
+          "$ref": "#/components/messages/rooms"
+        },
+        "ping": {
+          "$ref": "#/components/messages/ping"
+        },
+        "pong": {
+          "$ref": "#/components/messages/pong"
+        }
+      }
+    }
+  },
+  "operations": {
+    "receiveRoomMessages": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/room"
+      },
+      "summary": "hello authenticates the connection; other JSON messages go to the game (adapter.connection).",
+      "messages": [
+        {
+          "$ref": "#/channels/room/messages/hello"
+        },
+        {
+          "$ref": "#/channels/room/messages/game"
+        },
+        {
+          "$ref": "#/channels/room/messages/ping"
+        }
+      ]
+    },
+    "sendRoomMessages": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/room"
+      },
+      "summary": "The view after every change, a rotated token, or an authentication error.",
+      "messages": [
+        {
+          "$ref": "#/channels/room/messages/view"
+        },
+        {
+          "$ref": "#/channels/room/messages/token"
+        },
+        {
+          "$ref": "#/channels/room/messages/error"
+        },
+        {
+          "$ref": "#/channels/room/messages/pong"
+        }
+      ]
+    },
+    "receiveRoomsPing": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/rooms"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/rooms/messages/ping"
+        }
+      ]
+    },
+    "sendRooms": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/rooms"
+      },
+      "summary": "The room list after every change (sent by the directory object).",
+      "messages": [
+        {
+          "$ref": "#/channels/rooms/messages/rooms"
+        },
+        {
+          "$ref": "#/channels/rooms/messages/pong"
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "RoomInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Room id."
+          },
+          "status": {
+            "type": "string",
+            "description": "Game status, as the adapter's summary gives it."
+          },
+          "playerCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Player names."
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "playerCount",
+          "names"
+        ],
+        "additionalProperties": false
+      },
+      "View": {
+        "description": "The game's view for this actor (GameAdapter type V, produced by adapter.view); application-owned."
+      }
+    },
+    "messages": {
+      "hello": {
+        "name": "hello",
+        "summary": "Authenticates with a player, spectator or display token; the other fields are the game's view options.",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "required": [
+            "type",
+            "token"
+          ],
+          "properties": {
+            "type": {
+              "const": "hello"
+            },
+            "token": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "game": {
+        "name": "game",
+        "summary": "A game message handled by adapter.connection; a string type and game fields.",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "not": {
+                "const": "hello"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "ping": {
+        "name": "ping",
+        "summary": "Keeps the connection alive; sent every 25 seconds.",
+        "contentType": "text/plain",
+        "payload": {
+          "type": "string",
+          "const": "ping"
+        }
+      },
+      "pong": {
+        "name": "pong",
+        "summary": "Answer to ping.",
+        "contentType": "text/plain",
+        "payload": {
+          "type": "string",
+          "const": "pong"
+        }
+      },
+      "view": {
+        "name": "view",
+        "summary": "The actor's view.",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "required": [
+            "type",
+            "view"
+          ],
+          "properties": {
+            "type": {
+              "const": "view"
+            },
+            "view": {
+              "$ref": "#/components/schemas/View"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "token": {
+        "name": "token",
+        "summary": "The rotated token the connection uses from now on; the device keeps it.",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "required": [
+            "type",
+            "token"
+          ],
+          "properties": {
+            "type": {
+              "const": "token"
+            },
+            "token": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "error": {
+        "name": "error",
+        "summary": "Sent before closing with 4001.",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "required": [
+            "type",
+            "error"
+          ],
+          "properties": {
+            "type": {
+              "const": "error"
+            },
+            "error": {
+              "const": "badToken"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "rooms": {
+        "name": "rooms",
+        "summary": "The room list.",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "required": [
+            "type",
+            "rooms"
+          ],
+          "properties": {
+            "type": {
+              "const": "rooms"
+            },
+            "rooms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RoomInfo"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}

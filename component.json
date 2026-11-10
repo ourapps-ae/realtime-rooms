@@ -1,271 +1,42 @@
 {
-  "format": 1,
-  "kind": "component",
-  "identity": {
-    "name": "ourapps-ae/realtime-rooms",
-    "version": "0.5.0",
-    "sourceRevision": "19905b75dbea89fbfd424d67fe26c81aaed0e018",
-    "sourceTreeDigest": "0000000000000000000000000000000000000000000000000000000000000000",
-    "licenceStatus": "deferred"
-  },
-  "facilities": [
-    {
-      "id": "rooms",
-      "description": "Persistent private game rooms and native transports"
-    }
-  ],
-  "documents": {
-    "contract": "CONTRACT.md",
-    "interfaces": [
-      "interfaces/room-session.json",
-      "interfaces/required/game-adapter.json",
-      "interfaces/required/room-directory.json",
-      "interfaces/required/guest-identity.json",
-      "implementation/server/adapter.ts",
-      "interfaces/wire.md",
-      "interfaces/room-state.schema.json",
-      "suitability.json",
-      "migration.json"
-    ],
-    "examples": [
-      "fixtures/worker.ts",
-      "examples/migration.ts"
-    ],
-    "licenceNotice": "LICENCE"
-  },
-  "collect": [],
-  "files": [
-    {
-      "path": "CONTRACT.md",
-      "executable": false
-    },
-    {
-      "path": "INSTRUCTIONS.md",
-      "executable": false
-    },
-    {
-      "path": "LICENCE",
-      "executable": false
-    },
-    {
-      "path": "SOURCE.md",
-      "executable": false
-    },
-    {
-      "path": "examples/migration.ts",
-      "executable": false
-    },
-    {
-      "path": "fixtures/identity.ts",
-      "executable": false
-    },
-    {
-      "path": "fixtures/worker.ts",
-      "executable": false
-    },
-    {
-      "path": "implementation/android/src/main/java/ae/rooms/RoomTransport.kt",
-      "executable": false
-    },
-    {
-      "path": "implementation/apple/Sources/LiveConnection.swift",
-      "executable": false
-    },
-    {
-      "path": "implementation/server/adapter.ts",
-      "executable": false
-    },
-    {
-      "path": "implementation/server/index.ts",
-      "executable": false
-    },
-    {
-      "path": "implementation/server/worker.ts",
-      "executable": false
-    },
-    {
-      "path": "implementation/web/live.ts",
-      "executable": false
-    },
-    {
-      "path": "interfaces/required/game-adapter.json",
-      "executable": false
-    },
-    {
-      "path": "interfaces/required/guest-identity.json",
-      "executable": false
-    },
-    {
-      "path": "interfaces/required/room-directory.json",
-      "executable": false
-    },
-    {
-      "path": "interfaces/room-session.json",
-      "executable": false
-    },
-    {
-      "path": "interfaces/room-state.schema.json",
-      "executable": false
-    },
-    {
-      "path": "interfaces/wire.md",
-      "executable": false
-    },
-    {
-      "path": "migration.json",
-      "executable": false
-    },
-    {
-      "path": "package-lock.json",
-      "executable": false
-    },
-    {
-      "path": "package.json",
-      "executable": false
-    },
-    {
-      "path": "scripts/package-metadata.py",
-      "executable": false
-    },
-    {
-      "path": "suitability.json",
-      "executable": false
-    },
-    {
-      "path": "tests/interfaces.test.ts",
-      "executable": false
-    },
-    {
-      "path": "tests/live.test.ts",
-      "executable": false
-    },
-    {
-      "path": "tests/migration.test.ts",
-      "executable": false
-    },
-    {
-      "path": "tests/request-body.mjs",
-      "executable": false
-    },
-    {
-      "path": "tests/rooms.test.ts",
-      "executable": false
-    },
-    {
-      "path": "tests/test_packaged_review.py",
-      "executable": false
-    },
-    {
-      "path": "tools.lock.json",
-      "executable": false
-    },
-    {
-      "path": "tsconfig.json",
-      "executable": false
-    },
-    {
-      "path": "visual/definition.json",
-      "executable": false
-    },
-    {
-      "path": "visual/examples/counter.json",
-      "executable": false
-    },
-    {
-      "path": "visual/output/counter.md",
-      "executable": false
-    },
-    {
-      "path": "visual/output/counter.png",
-      "executable": false
-    },
-    {
-      "path": "visual/output/counter.svg",
-      "executable": false
-    },
-    {
-      "path": "vitest.config.ts",
-      "executable": false
-    },
-    {
-      "path": "wrangler.jsonc",
-      "executable": false
-    }
-  ],
   "artefacts": [
     {
-      "source": "implementation/android/src/main/java/ae/rooms/RoomTransport.kt",
       "destination": "components/realtime-rooms/android/src/main/java/ae/rooms/RoomTransport.kt",
-      "template": false,
-      "executable": false
+      "executable": false,
+      "source": "implementation/android/src/main/java/ae/rooms/RoomTransport.kt",
+      "template": false
     },
     {
-      "source": "implementation/apple/Sources/LiveConnection.swift",
       "destination": "components/realtime-rooms/apple/Sources/LiveConnection.swift",
-      "template": false,
-      "executable": false
+      "executable": false,
+      "source": "implementation/apple/Sources/LiveConnection.swift",
+      "template": false
     },
     {
-      "source": "implementation/server/adapter.ts",
       "destination": "components/realtime-rooms/server/adapter.ts",
-      "template": false,
-      "executable": false
+      "executable": false,
+      "source": "implementation/server/adapter.ts",
+      "template": false
     },
     {
-      "source": "implementation/server/index.ts",
       "destination": "components/realtime-rooms/server/index.ts",
-      "template": false,
-      "executable": false
+      "executable": false,
+      "source": "implementation/server/index.ts",
+      "template": false
     },
     {
-      "source": "implementation/server/worker.ts",
       "destination": "components/realtime-rooms/server/worker.ts",
-      "template": false,
-      "executable": false
+      "executable": false,
+      "source": "implementation/server/worker.ts",
+      "template": false
     },
     {
-      "source": "implementation/web/live.ts",
       "destination": "components/realtime-rooms/web/live.ts",
-      "template": false,
-      "executable": false
+      "executable": false,
+      "source": "implementation/web/live.ts",
+      "template": false
     }
   ],
-  "dependencies": [],
-  "provides": [
-    {
-      "id": "session",
-      "type": "ae/room-session",
-      "version": "1.0.0",
-      "path": "interfaces/room-session.json"
-    }
-  ],
-  "requires": [
-    {
-      "id": "game",
-      "type": "ae/game-adapter",
-      "version": "1.0.0",
-      "path": "interfaces/required/game-adapter.json"
-    },
-    {
-      "id": "guest-identity",
-      "type": "ae/guest-identity",
-      "version": "1.0.0",
-      "path": "interfaces/required/guest-identity.json"
-    }
-  ],
-  "visual": {
-    "definition": "visual/definition.json",
-    "examples": [
-      "visual/examples/counter.json"
-    ],
-    "outputs": [
-      "visual/output/counter.svg",
-      "visual/output/counter.png"
-    ],
-    "descriptions": [
-      "visual/output/counter.md"
-    ]
-  },
   "capabilities": {
     "hosts": [
       "localhost",
@@ -276,6 +47,208 @@
       "components/realtime-rooms"
     ]
   },
+  "collect": [],
+  "dependencies": [],
+  "documents": {
+    "contract": "CONTRACT.md",
+    "examples": [
+      "fixtures/worker.ts",
+      "examples/migration.ts"
+    ],
+    "interfaces": [
+      "implementation/server/adapter.ts",
+      "interfaces/required-game.json",
+      "interfaces/required-guest-identity.json",
+      "interfaces/required-room-directory-http.json",
+      "interfaces/room-session-http.json",
+      "interfaces/room-session-live.json",
+      "interfaces/room-session.json",
+      "interfaces/room-state.schema.json",
+      "migration.json",
+      "suitability.json"
+    ],
+    "licenceNotice": "LICENCE"
+  },
+  "facilities": [
+    {
+      "description": "Persistent private game rooms and native transports",
+      "id": "rooms"
+    }
+  ],
+  "files": [
+    {
+      "executable": false,
+      "path": "CONTRACT.md"
+    },
+    {
+      "executable": false,
+      "path": "INSTRUCTIONS.md"
+    },
+    {
+      "executable": false,
+      "path": "LICENCE"
+    },
+    {
+      "executable": false,
+      "path": "NOTICE"
+    },
+    {
+      "executable": false,
+      "path": "SOURCE.md"
+    },
+    {
+      "executable": false,
+      "path": "examples/migration.ts"
+    },
+    {
+      "executable": false,
+      "path": "fixtures/identity.ts"
+    },
+    {
+      "executable": false,
+      "path": "fixtures/worker.ts"
+    },
+    {
+      "executable": false,
+      "path": "implementation/android/src/main/java/ae/rooms/RoomTransport.kt"
+    },
+    {
+      "executable": false,
+      "path": "implementation/apple/Sources/LiveConnection.swift"
+    },
+    {
+      "executable": false,
+      "path": "implementation/server/adapter.ts"
+    },
+    {
+      "executable": false,
+      "path": "implementation/server/index.ts"
+    },
+    {
+      "executable": false,
+      "path": "implementation/server/worker.ts"
+    },
+    {
+      "executable": false,
+      "path": "implementation/web/live.ts"
+    },
+    {
+      "executable": false,
+      "path": "interfaces/required-game.json"
+    },
+    {
+      "executable": false,
+      "path": "interfaces/required-guest-identity.json"
+    },
+    {
+      "executable": false,
+      "path": "interfaces/required-room-directory-http.json"
+    },
+    {
+      "executable": false,
+      "path": "interfaces/room-session-http.json"
+    },
+    {
+      "executable": false,
+      "path": "interfaces/room-session-live.json"
+    },
+    {
+      "executable": false,
+      "path": "interfaces/room-session.json"
+    },
+    {
+      "executable": false,
+      "path": "interfaces/room-state.schema.json"
+    },
+    {
+      "executable": false,
+      "path": "migration.json"
+    },
+    {
+      "executable": false,
+      "path": "package-lock.json"
+    },
+    {
+      "executable": false,
+      "path": "package.json"
+    },
+    {
+      "executable": false,
+      "path": "scripts/package-metadata.py"
+    },
+    {
+      "executable": false,
+      "path": "suitability.json"
+    },
+    {
+      "executable": false,
+      "path": "tests/interfaces.test.ts"
+    },
+    {
+      "executable": false,
+      "path": "tests/live.test.ts"
+    },
+    {
+      "executable": false,
+      "path": "tests/migration.test.ts"
+    },
+    {
+      "executable": false,
+      "path": "tests/request-body.mjs"
+    },
+    {
+      "executable": false,
+      "path": "tests/rooms.test.ts"
+    },
+    {
+      "executable": false,
+      "path": "tests/test_packaged_review.py"
+    },
+    {
+      "executable": false,
+      "path": "tools.lock.json"
+    },
+    {
+      "executable": false,
+      "path": "tsconfig.json"
+    },
+    {
+      "executable": false,
+      "path": "visual/definition.json"
+    },
+    {
+      "executable": false,
+      "path": "visual/examples/counter.json"
+    },
+    {
+      "executable": false,
+      "path": "visual/output/counter.md"
+    },
+    {
+      "executable": false,
+      "path": "visual/output/counter.png"
+    },
+    {
+      "executable": false,
+      "path": "visual/output/counter.svg"
+    },
+    {
+      "executable": false,
+      "path": "vitest.config.ts"
+    },
+    {
+      "executable": false,
+      "path": "wrangler.jsonc"
+    }
+  ],
+  "format": 1,
+  "identity": {
+    "licence": "Apache-2.0",
+    "name": "ourapps-ae/realtime-rooms",
+    "sourceRevision": "19905b75dbea89fbfd424d67fe26c81aaed0e018",
+    "sourceTreeDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+    "version": "0.6.0"
+  },
   "infrastructure": {
     "accounts": [
       "Cloudflare for deployment"
@@ -283,47 +256,49 @@
     "costStatus": "unmeasured",
     "deployedReason": "Local runtime only; deployment requires an authorized Cloudflare account."
   },
+  "kind": "component",
+  "provides": [
+    {
+      "id": "session",
+      "path": "interfaces/room-session.json",
+      "type": "ae/room-session",
+      "version": "1.0.0"
+    }
+  ],
+  "requires": [
+    {
+      "id": "game",
+      "path": "interfaces/required-game.json",
+      "type": "ae/game-adapter",
+      "version": "1.0.0"
+    },
+    {
+      "id": "guest-identity",
+      "path": "interfaces/required-guest-identity.json",
+      "type": "ae/guest-identity",
+      "version": "1.0.0"
+    }
+  ],
+  "upgrade": {
+    "migration": "files-only",
+    "policy": "patch"
+  },
   "verification": [
     {
-      "root": "package",
-      "cwd": ".",
-      "prepare": [
-        {
-          "argv": [
-            "npm",
-            "ci",
-            "--ignore-scripts",
-            "--no-audit",
-            "--no-fund"
-          ],
-          "cwd": ".",
-          "network": true
-        }
-      ],
-      "tools": {
-        "node": "26.5.0",
-        "npm": "11.17.0"
-      },
-      "fixtures": [
-        "fixtures/worker.ts"
-      ],
-      "locks": [
-        "package-lock.json"
-      ],
-      "network": false,
-      "timeoutSeconds": 120,
-      "expectedExit": 0,
-      "scope": "required-local",
-      "requirements": [],
-      "id": "rooms",
       "argv": [
         "npm",
         "test"
-      ]
-    },
-    {
-      "root": "package",
+      ],
       "cwd": ".",
+      "expectedExit": 0,
+      "fixtures": [
+        "fixtures/worker.ts"
+      ],
+      "id": "rooms",
+      "locks": [
+        "package-lock.json"
+      ],
+      "network": false,
       "prepare": [
         {
           "argv": [
@@ -337,30 +312,68 @@
           "network": true
         }
       ],
+      "requirements": [],
+      "root": "package",
+      "scope": "required-local",
+      "timeoutSeconds": 120,
       "tools": {
         "node": "26.5.0",
         "npm": "11.17.0"
-      },
+      }
+    },
+    {
+      "argv": [
+        "node",
+        "tests/request-body.mjs"
+      ],
+      "cwd": ".",
+      "expectedExit": 0,
       "fixtures": [
         "fixtures/worker.ts"
       ],
+      "id": "request-bodies",
       "locks": [
         "package-lock.json"
       ],
       "network": false,
-      "timeoutSeconds": 120,
-      "expectedExit": 0,
-      "scope": "required-local",
+      "prepare": [
+        {
+          "argv": [
+            "npm",
+            "ci",
+            "--ignore-scripts",
+            "--no-audit",
+            "--no-fund"
+          ],
+          "cwd": ".",
+          "network": true
+        }
+      ],
       "requirements": [],
-      "id": "request-bodies",
-      "argv": [
-        "node",
-        "tests/request-body.mjs"
-      ]
+      "root": "package",
+      "scope": "required-local",
+      "timeoutSeconds": 120,
+      "tools": {
+        "node": "26.5.0",
+        "npm": "11.17.0"
+      }
     },
     {
-      "root": "package",
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
       "cwd": ".",
+      "expectedExit": 0,
+      "fixtures": [
+        "fixtures/worker.ts"
+      ],
+      "id": "types",
+      "locks": [
+        "package-lock.json"
+      ],
+      "network": false,
       "prepare": [
         {
           "argv": [
@@ -383,58 +396,56 @@
           "network": false
         }
       ],
+      "requirements": [],
+      "root": "package",
+      "scope": "required-local",
+      "timeoutSeconds": 120,
       "tools": {
         "node": "26.5.0",
         "npm": "11.17.0"
-      },
-      "fixtures": [
-        "fixtures/worker.ts"
-      ],
-      "locks": [
-        "package-lock.json"
-      ],
-      "network": false,
-      "timeoutSeconds": 120,
-      "expectedExit": 0,
-      "scope": "required-local",
-      "requirements": [],
-      "id": "types",
-      "argv": [
-        "npm",
-        "run",
-        "typecheck"
-      ]
+      }
     },
     {
-      "root": "package",
-      "cwd": ".",
-      "prepare": [],
-      "tools": {
-        "node": "26.5.0"
-      },
-      "fixtures": [
-        "examples/migration.ts",
-        "interfaces/room-session.json"
-      ],
-      "locks": [
-        "tools.lock.json"
-      ],
-      "network": false,
-      "timeoutSeconds": 120,
-      "expectedExit": 0,
-      "scope": "required-local",
-      "requirements": [],
-      "id": "migration",
       "argv": [
         "node",
         "--test",
         "tests/migration.test.ts",
         "tests/interfaces.test.ts"
-      ]
+      ],
+      "cwd": ".",
+      "expectedExit": 0,
+      "fixtures": [
+        "examples/migration.ts",
+        "interfaces/room-session.json",
+        "interfaces/room-session-http.json",
+        "interfaces/room-session-live.json"
+      ],
+      "id": "migration",
+      "locks": [
+        "tools.lock.json"
+      ],
+      "network": false,
+      "prepare": [],
+      "requirements": [],
+      "root": "package",
+      "scope": "required-local",
+      "timeoutSeconds": 120,
+      "tools": {
+        "node": "26.5.0"
+      }
     }
   ],
-  "upgrade": {
-    "policy": "patch",
-    "migration": "files-only"
+  "visual": {
+    "definition": "visual/definition.json",
+    "descriptions": [
+      "visual/output/counter.md"
+    ],
+    "examples": [
+      "visual/examples/counter.json"
+    ],
+    "outputs": [
+      "visual/output/counter.svg",
+      "visual/output/counter.png"
+    ]
   }
 }

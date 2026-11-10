@@ -1,0 +1,1563 @@
+{
+  "openrpc": "1.3.2",
+  "info": {
+    "title": "ae/guest-identity",
+    "version": "1.0.0",
+    "description": "Guests known by the name they type, with private bearer tokens that rotate. Pure functions over a plain book (server/identity.ts, storage belongs to the caller), the same functions with the settings bound once (createIdentityApi, what seating and realtime-rooms call), and a device-side store of the name and per-slot tokens (web/identity-store.ts, Swift and Kotlin IdentityStore with NameRules). Methods are tagged with the languages that provide them. Over the wire a client sends {name}, the server answers {token, playerId}, later requests carry Authorization: Bearer <token>, and a response may carry a rotated token.",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "methods": [
+    {
+      "name": "createIdentityApi",
+      "description": "Validates the settings once and returns the functions with them bound.",
+      "params": [
+        {
+          "name": "settings",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/PartialIdentitySettings"
+          }
+        }
+      ],
+      "result": {
+        "name": "api",
+        "schema": {
+          "$ref": "#/components/schemas/IdentityApi"
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/SettingsRangeError"
+        }
+      ],
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "IdentityApi.validName",
+      "description": "validName with the bound settings.",
+      "params": [
+        {
+          "name": "name",
+          "required": true,
+          "schema": {}
+        }
+      ],
+      "result": {
+        "name": "valid",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "IdentityApi.checkName",
+      "description": "checkName with the bound settings.",
+      "params": [
+        {
+          "name": "name",
+          "required": true,
+          "schema": {}
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "description": "The name, or badName.",
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "const": true
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "ok",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "const": false
+                },
+                "error": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              },
+              "required": [
+                "ok",
+                "error"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "IdentityApi.claim",
+      "description": "claim with the bound settings.",
+      "params": [
+        {
+          "name": "book",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityBook"
+          }
+        },
+        {
+          "name": "name",
+          "required": true,
+          "schema": {}
+        },
+        {
+          "name": "deps",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Deps"
+          }
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "description": "badName when the name is not acceptable.",
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "const": true
+                },
+                "value": {
+                  "$ref": "#/components/schemas/Claimed"
+                }
+              },
+              "required": [
+                "ok",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "const": false
+                },
+                "error": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              },
+              "required": [
+                "ok",
+                "error"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "IdentityApi.authenticate",
+      "description": "authenticate with the bound settings.",
+      "params": [
+        {
+          "name": "book",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityBook"
+          }
+        },
+        {
+          "name": "token",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "deps",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Deps"
+          }
+        }
+      ],
+      "result": {
+        "name": "authenticated",
+        "schema": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/Authenticated"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "IdentityApi.findByName",
+      "description": "findByName.",
+      "params": [
+        {
+          "name": "book",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityBook"
+          }
+        },
+        {
+          "name": "name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "record",
+        "description": "undefined in TypeScript when no record has the name.",
+        "schema": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/IdentityRecord"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "IdentityApi.release",
+      "description": "release.",
+      "params": [
+        {
+          "name": "book",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityBook"
+          }
+        },
+        {
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "book",
+        "schema": {
+          "$ref": "#/components/schemas/IdentityBook"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "validateSettings",
+      "description": "The settings with defaults filled in, checked.",
+      "params": [
+        {
+          "name": "settings",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/PartialIdentitySettings"
+          }
+        }
+      ],
+      "result": {
+        "name": "settings",
+        "schema": {
+          "$ref": "#/components/schemas/IdentitySettings"
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/SettingsRangeError"
+        }
+      ],
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "emptyBook",
+      "description": "A book with no records.",
+      "params": [],
+      "result": {
+        "name": "book",
+        "schema": {
+          "$ref": "#/components/schemas/IdentityBook"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "validName",
+      "description": "True for printable ASCII with no space at either end, not blank, within the length limits.",
+      "params": [
+        {
+          "name": "name",
+          "required": true,
+          "schema": {}
+        },
+        {
+          "name": "settings",
+          "description": "Defaults to nameMinLength 1, nameMaxLength 20, tokenRotationSeconds 0.",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/IdentitySettings"
+          }
+        }
+      ],
+      "result": {
+        "name": "valid",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "checkName",
+      "description": "The name when validName, else badName with a message giving the limits.",
+      "params": [
+        {
+          "name": "name",
+          "required": true,
+          "schema": {}
+        },
+        {
+          "name": "settings",
+          "description": "Defaults to nameMinLength 1, nameMaxLength 20, tokenRotationSeconds 0.",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/IdentitySettings"
+          }
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "description": "The name, or badName.",
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "const": true
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "ok",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "const": false
+                },
+                "error": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              },
+              "required": [
+                "ok",
+                "error"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "claim",
+      "description": "Takes the name: a new guest (deps.newId) or the same guest returning from any device. Issues a new token; the previous one stops working.",
+      "params": [
+        {
+          "name": "book",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityBook"
+          }
+        },
+        {
+          "name": "name",
+          "required": true,
+          "schema": {}
+        },
+        {
+          "name": "deps",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Deps"
+          }
+        },
+        {
+          "name": "settings",
+          "description": "Defaults to nameMinLength 1, nameMaxLength 20, tokenRotationSeconds 0.",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/IdentitySettings"
+          }
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "description": "badName when the name is not acceptable.",
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "const": true
+                },
+                "value": {
+                  "$ref": "#/components/schemas/Claimed"
+                }
+              },
+              "required": [
+                "ok",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "const": false
+                },
+                "error": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              },
+              "required": [
+                "ok",
+                "error"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "authenticate",
+      "description": "Who holds this token, or null. A token past the rotation period is swapped (rotatedToken is the new one); the replaced token is accepted for one more period and answers with the current token as rotatedToken. Updates lastSeenAt.",
+      "params": [
+        {
+          "name": "book",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityBook"
+          }
+        },
+        {
+          "name": "token",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "deps",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Deps"
+          }
+        },
+        {
+          "name": "settings",
+          "description": "Defaults to nameMinLength 1, nameMaxLength 20, tokenRotationSeconds 0.",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/IdentitySettings"
+          }
+        }
+      ],
+      "result": {
+        "name": "authenticated",
+        "schema": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/Authenticated"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "findByName",
+      "description": "The record with this name.",
+      "params": [
+        {
+          "name": "book",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityBook"
+          }
+        },
+        {
+          "name": "name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "record",
+        "description": "undefined in TypeScript when no record has the name.",
+        "schema": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/IdentityRecord"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "release",
+      "description": "Forgets the guest: the name is free and the token stops working.",
+      "params": [
+        {
+          "name": "book",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityBook"
+          }
+        },
+        {
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "book",
+        "schema": {
+          "$ref": "#/components/schemas/IdentityBook"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "exportAll",
+      "description": "One JSON record per line (ae/identity-record 1.0.0), ordered by id, newline-terminated; empty for an empty book.",
+      "params": [
+        {
+          "name": "book",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityBook"
+          }
+        }
+      ],
+      "result": {
+        "name": "ndjson",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "importAll",
+      "description": "The book from ndjson; badToken when a line is not JSON or a record has missing or wrongly typed fields.",
+      "params": [
+        {
+          "name": "text",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "const": true
+                },
+                "value": {
+                  "$ref": "#/components/schemas/IdentityBook"
+                }
+              },
+              "required": [
+                "ok",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "const": false
+                },
+                "error": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              },
+              "required": [
+                "ok",
+                "error"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "recordDigest",
+      "description": "Resolves to the SHA-256 hex of [id, name, token, previousToken, issuedAt, lastSeenAt] as JSON.",
+      "params": [
+        {
+          "name": "record",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityRecord"
+          }
+        }
+      ],
+      "result": {
+        "name": "digest",
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "createIdentityStore",
+      "description": "The device store over key-value storage.",
+      "params": [
+        {
+          "name": "storage",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/KeyValueStorage"
+          }
+        },
+        {
+          "name": "settings",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentitySettings"
+          }
+        },
+        {
+          "name": "keys",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityKeys"
+          }
+        }
+      ],
+      "result": {
+        "name": "store",
+        "schema": {
+          "$ref": "#/components/schemas/IdentityStore"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "clipName",
+      "description": "The input cut to nameMaxLength.",
+      "params": [
+        {
+          "name": "input",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "settings",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentitySettings"
+          }
+        }
+      ],
+      "result": {
+        "name": "name",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "nameToSave",
+      "description": "The trimmed name when valid, else null.",
+      "params": [
+        {
+          "name": "input",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "settings",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/IdentitySettings"
+          }
+        }
+      ],
+      "result": {
+        "name": "name",
+        "schema": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        }
+      ]
+    },
+    {
+      "name": "NameRules.isValid",
+      "description": "validName with these limits.",
+      "params": [
+        {
+          "name": "name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "valid",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "tags": [
+        {
+          "name": "swift"
+        },
+        {
+          "name": "kotlin"
+        }
+      ]
+    },
+    {
+      "name": "NameRules.clip",
+      "description": "The input cut to maxLength.",
+      "params": [
+        {
+          "name": "input",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "name",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "tags": [
+        {
+          "name": "swift"
+        },
+        {
+          "name": "kotlin"
+        }
+      ]
+    },
+    {
+      "name": "NameRules.nameToSave",
+      "description": "The trimmed name when valid, else nil or null.",
+      "params": [
+        {
+          "name": "input",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "name",
+        "schema": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "swift"
+        },
+        {
+          "name": "kotlin"
+        }
+      ]
+    },
+    {
+      "name": "IdentityStore.init",
+      "description": "Swift IdentityStore(store:rules:keys:) over a KeyValueStore (UserDefaults conforms); Kotlin IdentityStore(store, rules, nameKey, slots) over a KeyValueStore wrapping SharedPreferences.",
+      "params": [
+        {
+          "name": "store",
+          "required": true,
+          "schema": {
+            "description": "KeyValueStore: Swift string(forKey:) and set(_:forKey:); Kotlin get, put and remove."
+          }
+        },
+        {
+          "name": "rules",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/NameRules"
+          }
+        },
+        {
+          "name": "keys",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/IdentityKeys"
+          }
+        }
+      ],
+      "result": {
+        "name": "store",
+        "schema": {
+          "$ref": "#/components/schemas/IdentityStore"
+        }
+      },
+      "tags": [
+        {
+          "name": "swift"
+        },
+        {
+          "name": "kotlin"
+        }
+      ]
+    },
+    {
+      "name": "IdentityStore.name",
+      "description": "The saved name, or empty.",
+      "params": [],
+      "result": {
+        "name": "name",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        },
+        {
+          "name": "swift"
+        },
+        {
+          "name": "kotlin"
+        }
+      ]
+    },
+    {
+      "name": "IdentityStore.setName",
+      "description": "Saves and returns the trimmed name when acceptable; returns null and stores nothing otherwise.",
+      "params": [
+        {
+          "name": "input",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "name",
+        "schema": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        },
+        {
+          "name": "swift"
+        },
+        {
+          "name": "kotlin"
+        }
+      ]
+    },
+    {
+      "name": "IdentityStore.session",
+      "description": "The slot's token and room when both are stored and not empty.",
+      "params": [
+        {
+          "name": "slot",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "description": "Slot name, for example player or display."
+          }
+        }
+      ],
+      "result": {
+        "name": "session",
+        "schema": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/Session"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        },
+        {
+          "name": "swift"
+        },
+        {
+          "name": "kotlin"
+        }
+      ]
+    },
+    {
+      "name": "IdentityStore.saveSession",
+      "description": "Stores the slot's token and room.",
+      "params": [
+        {
+          "name": "slot",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "description": "Slot name, for example player or display."
+          }
+        },
+        {
+          "name": "session",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Session"
+          }
+        }
+      ],
+      "result": {
+        "name": "none",
+        "description": "Returns nothing.",
+        "schema": {
+          "type": "null"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        },
+        {
+          "name": "swift"
+        },
+        {
+          "name": "kotlin"
+        }
+      ]
+    },
+    {
+      "name": "IdentityStore.clearSession",
+      "description": "Forgets the slot's token and room but keeps the name.",
+      "params": [
+        {
+          "name": "slot",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "description": "Slot name, for example player or display."
+          }
+        }
+      ],
+      "result": {
+        "name": "none",
+        "description": "Returns nothing.",
+        "schema": {
+          "type": "null"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        },
+        {
+          "name": "swift"
+        },
+        {
+          "name": "kotlin"
+        }
+      ]
+    },
+    {
+      "name": "IdentityStore.replaceToken",
+      "description": "Keeps a rotated token for the slot.",
+      "params": [
+        {
+          "name": "slot",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "description": "Slot name, for example player or display."
+          }
+        },
+        {
+          "name": "token",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "none",
+        "description": "Returns nothing.",
+        "schema": {
+          "type": "null"
+        }
+      },
+      "tags": [
+        {
+          "name": "typescript"
+        },
+        {
+          "name": "swift"
+        },
+        {
+          "name": "kotlin"
+        }
+      ]
+    }
+  ],
+  "components": {
+    "schemas": {
+      "IdentitySettings": {
+        "type": "object",
+        "properties": {
+          "nameMinLength": {
+            "type": "integer",
+            "description": "Shortest name; at least 1. Defaults to 1.",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "nameMaxLength": {
+            "type": "integer",
+            "description": "Longest name; not below nameMinLength. Defaults to 20.",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "tokenRotationSeconds": {
+            "type": "integer",
+            "description": "Age after which a token is swapped on its next use, and for which the replaced token is still accepted; 0 never rotates. Defaults to 0.",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "nameMinLength",
+          "nameMaxLength",
+          "tokenRotationSeconds"
+        ],
+        "additionalProperties": false
+      },
+      "PartialIdentitySettings": {
+        "type": "object",
+        "properties": {
+          "nameMinLength": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "nameMaxLength": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "tokenRotationSeconds": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "description": "Any of the settings; the rest take their defaults."
+      },
+      "IdentityRecord": {
+        "$comment": "Same shape as ae/identity-record 1.0.0 (interfaces/identity-record.schema.json).",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "token": {
+            "type": "string",
+            "description": "Private. The current bearer token.",
+            "minLength": 1
+          },
+          "previousToken": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Private. The replaced token, accepted for one rotation period."
+          },
+          "issuedAt": {
+            "type": "integer",
+            "description": "When the current token was issued. Milliseconds since the epoch."
+          },
+          "lastSeenAt": {
+            "type": "integer",
+            "description": "Last authenticated request. Milliseconds since the epoch."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "token",
+          "previousToken",
+          "issuedAt",
+          "lastSeenAt"
+        ],
+        "additionalProperties": false
+      },
+      "IdentityBook": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/IdentityRecord"
+            },
+            "description": "Record id to record."
+          }
+        },
+        "required": [
+          "records"
+        ],
+        "additionalProperties": false
+      },
+      "Deps": {
+        "type": "object",
+        "required": [
+          "now",
+          "newId",
+          "newToken"
+        ],
+        "properties": {
+          "now": {
+            "description": "Function () => number, the time in milliseconds since the epoch."
+          },
+          "newId": {
+            "description": "Function () => string, a fresh guest id."
+          },
+          "newToken": {
+            "description": "Function () => string, a fresh private token."
+          }
+        }
+      },
+      "IdentityError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "badName",
+              "badToken"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "additionalProperties": false
+      },
+      "Claimed": {
+        "type": "object",
+        "properties": {
+          "book": {
+            "$ref": "#/components/schemas/IdentityBook"
+          },
+          "id": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "rejoined": {
+            "type": "boolean",
+            "description": "True when the name was already in the book."
+          }
+        },
+        "required": [
+          "book",
+          "id",
+          "token",
+          "rejoined"
+        ],
+        "additionalProperties": false
+      },
+      "Authenticated": {
+        "type": "object",
+        "properties": {
+          "book": {
+            "$ref": "#/components/schemas/IdentityBook"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "rotatedToken": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The token the device must keep from now on, when the presented one was due for rotation or was just replaced."
+          }
+        },
+        "required": [
+          "book",
+          "id",
+          "name",
+          "rotatedToken"
+        ],
+        "additionalProperties": false
+      },
+      "IdentityApi": {
+        "type": "object",
+        "description": "The settings bound once; the functions are listed as IdentityApi.* methods.",
+        "required": [
+          "settings",
+          "validName",
+          "checkName",
+          "claim",
+          "authenticate",
+          "findByName",
+          "release"
+        ],
+        "properties": {
+          "settings": {
+            "$ref": "#/components/schemas/IdentitySettings"
+          },
+          "validName": {
+            "description": "Function (name: unknown) => boolean."
+          },
+          "checkName": {
+            "description": "Function (name: unknown) => Result<string>."
+          },
+          "claim": {
+            "description": "Function (book, name: unknown, deps) => Result<Claimed>."
+          },
+          "authenticate": {
+            "description": "Function (book, token: string, deps) => Authenticated | null."
+          },
+          "findByName": {
+            "description": "Function (book, name: string) => IdentityRecord | undefined."
+          },
+          "release": {
+            "description": "Function (book, id: string) => IdentityBook."
+          }
+        },
+        "additionalProperties": false
+      },
+      "KeyValueStorage": {
+        "type": "object",
+        "description": "localStorage or anything with the same three functions.",
+        "required": [
+          "getItem",
+          "setItem",
+          "removeItem"
+        ],
+        "properties": {
+          "getItem": {
+            "description": "Function (key: string) => string | null."
+          },
+          "setItem": {
+            "description": "Function (key: string, value: string) => void."
+          },
+          "removeItem": {
+            "description": "Function (key: string) => void."
+          }
+        }
+      },
+      "SlotKeys": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Storage key of the slot's token."
+          },
+          "room": {
+            "type": "string",
+            "description": "Storage key of the slot's room id."
+          }
+        },
+        "required": [
+          "token",
+          "room"
+        ],
+        "additionalProperties": false
+      },
+      "IdentityKeys": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Storage key of the name; defaults to name."
+          },
+          "slots": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SlotKeys"
+            },
+            "description": "Slot name to its keys; defaults to player (token, roomId) and display (boardToken, boardRoomId)."
+          }
+        },
+        "required": [
+          "name",
+          "slots"
+        ],
+        "additionalProperties": false
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "roomId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "roomId"
+        ],
+        "additionalProperties": false
+      },
+      "IdentityStore": {
+        "type": "object",
+        "description": "What a device keeps of who it is; the functions are listed as IdentityStore.* methods (TypeScript createIdentityStore, Swift struct IdentityStore, Kotlin class IdentityStore).",
+        "required": [
+          "name",
+          "setName",
+          "session",
+          "saveSession",
+          "clearSession",
+          "replaceToken"
+        ],
+        "properties": {
+          "name": {
+            "description": "Function () => string (a property in Swift and Kotlin)."
+          },
+          "setName": {
+            "description": "Function (input: string) => string | null."
+          },
+          "session": {
+            "description": "Function (slot: string) => Session | null."
+          },
+          "saveSession": {
+            "description": "Function (slot: string, session: Session) => void."
+          },
+          "clearSession": {
+            "description": "Function (slot: string) => void."
+          },
+          "replaceToken": {
+            "description": "Function (slot: string, token: string) => void."
+          }
+        }
+      },
+      "NameRules": {
+        "type": "object",
+        "properties": {
+          "minLength": {
+            "type": "integer",
+            "description": "Defaults to 1.",
+            "minimum": 1
+          },
+          "maxLength": {
+            "type": "integer",
+            "description": "Defaults to 20.",
+            "minimum": 1
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "description": "Swift struct and Kotlin data class NameRules."
+      }
+    },
+    "errors": {
+      "SettingsRangeError": {
+        "code": 1,
+        "message": "RangeError",
+        "data": {
+          "type": "string",
+          "enum": [
+            "nameMinLength must be a whole number of at least 1",
+            "nameMaxLength must be a whole number, not below nameMinLength",
+            "tokenRotationSeconds must be a whole number of 0 or more"
+          ]
+        }
+      }
+    }
+  }
+}

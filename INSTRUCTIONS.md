@@ -1,6 +1,6 @@
 # Realtime rooms instructions
 
-Package `ourapps-ae/realtime-rooms` version `0.5.0`. It provides `session` (type `ae/room-session`, version 1.0.0) and requires `game` (type `ae/game-adapter`, version 1.0.0) and `guest-identity` (type `ae/guest-identity`, version 1.0.0).
+Package `ourapps-ae/realtime-rooms` version `0.6.0`. It provides `session` (type `ae/room-session`, version 1.0.0) and requires `game` (type `ae/game-adapter`, version 1.0.0) and `guest-identity` (type `ae/guest-identity`, version 1.0.0).
 
 ## For the agent
 
@@ -18,7 +18,7 @@ Package `ourapps-ae/realtime-rooms` version `0.5.0`. It provides `session` (type
 - Cloudflare: bind `ROOM` and `DIRECTORY` Durable Objects and declare `new_sqlite_classes` in a migration (see `wrangler.jsonc`). Set `CODE_VERSION` on each deploy so running objects restart onto the new code. Set `WEB_ORIGINS` for extra allowed origins.
 - Clients keep the token the join answer gives and replace it when a response carries `x-rotated-token` or a live connection sends `{type:"token"}` (rotation is off unless guest-identity's `tokenRotationSeconds` is above 0).
 - Optional `Services.videoGrant` returns the application's video grant response (see `video-calls`).
-- Client transports take injected addresses and decoding: `Live` (web), `LiveConnection<Message>` (Apple), `RoomTransport` (Android). Routes and messages are in `interfaces/wire.md`.
+- Client transports take injected addresses and decoding: `Live` (web), `LiveConnection<Message>` (Apple), `RoomTransport` (Android). Routes are in `interfaces/room-session-http.json` (OpenAPI 3.1.1) and live messages in `interfaces/room-session-live.json` (AsyncAPI 3.1.0); the library calls are in `interfaces/room-session.json` (OpenRPC 1.3.2).
 - Moving data: see `examples/migration.ts` (ndjson export and import with checksums) and `interfaces/room-state.schema.json`.
 
 ## How to check

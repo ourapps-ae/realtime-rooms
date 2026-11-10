@@ -1,9 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "ae/room-state",
-  "title": "Room state 1.0.0",
+  "title": "ae/room-state",
+  "x-version": "1.0.0",
   "description": "What the Room Durable Objects keep in their own storage, and the ndjson lines used to export and import it. The game value is opaque to this component; the application's GameAdapter.restore reads or rejects it. The room list kept by the directory object is described by room-directory.",
-  "version": "1.0.0",
   "$defs": {
     "roomInfo": {
       "type": "object",
