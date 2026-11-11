@@ -27,8 +27,8 @@ From the component directory (needs `npm ci --ignore-scripts --no-audit --no-fun
 
 - `npm test` (counter game on the local Workers runtime)
 - `node tests/request-body.mjs`
-- `npm run typecheck`
+- `npm run types`, then `npm run typecheck`
 - `node --test tests/migration.test.ts tests/interfaces.test.ts` (needs only node)
-- `python3.12 -B tools/check_component.py components/realtime-rooms` from the workspace root.
+- `python3 -m aepm review <digest> --store STORE --policy POLICY --trusted --allow-network` checks an archive fetched with `python3 -m aepm fetch ourapps-ae/realtime-rooms@VERSION --store STORE --from https://ourapps.app` and runs its suites.
 
 Against a deployed worker: join a room, take an action, close the connection and reconnect; the player token should still work and the private value should still show.
