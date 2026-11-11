@@ -12,7 +12,7 @@
       "kind": "component",
       "status": "example",
       "package": "ourapps-ae/realtime-rooms",
-      "version": "0.6.2",
+      "version": "0.6.3",
       "ports": [
         {
           "id": "game",
