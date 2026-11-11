@@ -247,7 +247,7 @@
     "name": "ourapps-ae/realtime-rooms",
     "sourceRevision": "19905b75dbea89fbfd424d67fe26c81aaed0e018",
     "sourceTreeDigest": "0000000000000000000000000000000000000000000000000000000000000000",
-    "version": "0.6.0"
+    "version": "0.6.1"
   },
   "infrastructure": {
     "accounts": [
@@ -317,8 +317,8 @@
       "scope": "required-local",
       "timeoutSeconds": 120,
       "tools": {
-        "node": "26.5.0",
-        "npm": "11.17.0"
+        "node": "26.5",
+        "npm": "11.17"
       }
     },
     {
@@ -354,8 +354,8 @@
       "scope": "required-local",
       "timeoutSeconds": 120,
       "tools": {
-        "node": "26.5.0",
-        "npm": "11.17.0"
+        "node": "26.5",
+        "npm": "11.17"
       }
     },
     {
@@ -401,8 +401,8 @@
       "scope": "required-local",
       "timeoutSeconds": 120,
       "tools": {
-        "node": "26.5.0",
-        "npm": "11.17.0"
+        "node": "26.5",
+        "npm": "11.17"
       }
     },
     {
@@ -431,7 +431,7 @@
       "scope": "required-local",
       "timeoutSeconds": 120,
       "tools": {
-        "node": "26.5.0"
+        "node": "26.5"
       }
     }
   ],

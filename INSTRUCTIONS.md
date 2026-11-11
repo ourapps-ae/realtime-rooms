@@ -1,6 +1,6 @@
 # Realtime rooms instructions
 
-Package `ourapps-ae/realtime-rooms` version `0.6.0`. It provides `session` (type `ae/room-session`, version 1.0.0) and requires `game` (type `ae/game-adapter`, version 1.0.0) and `guest-identity` (type `ae/guest-identity`, version 1.0.0).
+Package `ourapps-ae/realtime-rooms` version `0.6.1`. It provides `session` (type `ae/room-session`, version 1.0.0) and requires `game` (type `ae/game-adapter`, version 1.0.0) and `guest-identity` (type `ae/guest-identity`, version 1.0.0).
 
 ## For the agent
 
