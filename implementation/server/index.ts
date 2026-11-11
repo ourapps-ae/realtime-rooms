@@ -121,7 +121,8 @@ export function createRoomClass<S, A, V, O>(adapter: GameAdapter<S, A, V, O>, se
       const body = await readJson(request);
       const name = typeof body?.name === "string" ? body.name : "";
       await this.sync();
-      const member = adapter.members(this.rec.game).find(p => p.name === name);
+      // Only a person's seat (one guest-identity knows) is returned by name and token; a computer player's name is no seat to take.
+      const member = adapter.members(this.rec.game).find(p => p.name === name && p.id in this.rec.identity.records);
       const spectator = Object.entries(this.rec.spectators).find(([, n]) => n === name);
       // A seat or a watcher's place is taken back only with its token: the device sends the one it holds.
       const claimed = identity.claim(this.rec.identity, name, this.identityDeps(() => member?.id ?? spectator?.[0] ?? this.deps.newId()), bearer(request) || null);
@@ -264,6 +265,11 @@ export function createRoomClass<S, A, V, O>(adapter: GameAdapter<S, A, V, O>, se
       await this.save();
       for (const w of this.waiters) { clearTimeout(w.timer); w.resolve(); } this.waiters.clear();
       for (const ws of this.ctx.getWebSockets()) this.push(ws);
+      // A name lives as long as its seat or watcher's place: when the game lets a seat go (a closed device dropped from the
+      // waiting room, the end of a game), the name is free again, once the last view has gone out.
+      const holders = new Set([...adapter.members(state).map(p => p.id), ...Object.keys(this.rec.spectators)]);
+      const gone = Object.keys(this.rec.identity.records).filter(id => !holders.has(id));
+      if (gone.length) { for (const id of gone) this.forget(id); await this.save(); }
       const info = this.info(), listed = JSON.stringify([info.names, info.status]);
       if (info.id && listed !== this.rec.listed) {
         try { await this.env.DIRECTORY.getByName("home").fetch("https://directory/", { method: "POST", body: JSON.stringify(info), headers: { "x-code-version": this.env.CODE_VERSION ?? "" } }); this.rec.listed = listed; await this.save(); } catch (e) { console.error("directory update failed", e); }

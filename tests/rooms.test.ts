@@ -88,6 +88,17 @@ it("gives a seat back only to the token it was given: a join by the name alone i
   expect((await SELF.fetch(base + "/state", { headers: { authorization: `Bearer ${a.token}` } })).status).toBe(401);
 });
 
+it("frees the name when the game lets the seat go without the player leaving", async () => {
+  const a = await join("A");
+  // The game drops the seat by itself (as a waiting room drops a closed device): the next change releases the name.
+  await runInDurableObject(stub(), async (instance: unknown) => { (instance as { rec: { game: { members: unknown[] } } }).rec.game.members = []; });
+  const b = await join("B");
+  expect((await authed(a.token)).status).toBe(401);
+  const again = await join("A");
+  expect(again.playerId).not.toBe(a.playerId);
+  expect(b.playerId).toBeTruthy();
+});
+
 it("refuses a name guest-identity rejects, and frees the name when a player leaves", async () => {
   const bad = await post("/join", { name: "" });
   expect(bad.status).toBe(422); expect((await bad.json() as any).error).toBe("badName");
