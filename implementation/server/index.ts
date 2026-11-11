@@ -123,8 +123,9 @@ export function createRoomClass<S, A, V, O>(adapter: GameAdapter<S, A, V, O>, se
       await this.sync();
       const member = adapter.members(this.rec.game).find(p => p.name === name);
       const spectator = Object.entries(this.rec.spectators).find(([, n]) => n === name);
-      const claimed = identity.claim(this.rec.identity, name, this.identityDeps(() => member?.id ?? spectator?.[0] ?? this.deps.newId()));
-      if (!claimed.ok) return failure(claimed.error.code, 422, claimed.error.message);
+      // A seat or a watcher's place is taken back only with its token: the device sends the one it holds.
+      const claimed = identity.claim(this.rec.identity, name, this.identityDeps(() => member?.id ?? spectator?.[0] ?? this.deps.newId()), bearer(request) || null);
+      if (!claimed.ok) return failure(claimed.error.code, claimed.error.code === "nameTaken" ? 409 : 422, claimed.error.message);
       const { id, token } = claimed.value;
       const r = adapter.join(this.rec.game, id, name, !!member, this.deps);
       if (!r.ok) return resultError(r);

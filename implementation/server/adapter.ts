@@ -37,8 +37,9 @@ export type IdentityDeps = { now: () => number; newId: () => string; newToken: (
 export type IdentityResult<T> = { ok: true; value: T } | { ok: false; error: { code: string; message: string } };
 // What a room calls on the guest-identity component (`createIdentityApi(settings)` satisfies it). Each room keeps its own book.
 export interface IdentityService {
-  // Takes the name (a new guest, or the same one returning); the token before it stops working.
-  claim(book: IdentityBook, name: unknown, deps: IdentityDeps): IdentityResult<{ book: IdentityBook; id: string; token: string; rejoined: boolean }>;
+  // Takes the name: a new guest, or the one returning with the name's token (`token`, the join request's bearer token);
+  // a name in use without its token is refused. The token before it stops working.
+  claim(book: IdentityBook, name: unknown, deps: IdentityDeps, token?: string | null): IdentityResult<{ book: IdentityBook; id: string; token: string; rejoined: boolean }>;
   // Who holds this token; `rotatedToken` is the token the device must keep from now on when one is due or was just replaced.
   authenticate(book: IdentityBook, token: string, deps: IdentityDeps): { book: IdentityBook; id: string; name: string; rotatedToken: string | null } | null;
   // Forgets the guest: the name is free and the token stops working.

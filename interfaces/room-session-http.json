@@ -94,7 +94,7 @@
       ],
       "post": {
         "operationId": "join",
-        "summary": "Join under a name. Joining again under the same name returns a new token and ends the old one.",
+        "summary": "Join under a name. A name in use is given back only to a request that carries its current token as the bearer token (a new token replaces it); without it the join is refused with nameTaken.",
         "requestBody": {
           "required": true,
           "content": {
@@ -141,12 +141,12 @@
             }
           },
           "409": {
-            "description": "The game refused the join.",
+            "description": "The name is in use and the request did not carry its token (nameTaken), or the game refused the join.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error",
-                  "description": "error is a game code."
+                  "description": "error is nameTaken or a game code."
                 }
               }
             }
@@ -162,7 +162,13 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "bearer": []
+          }
+        ]
       }
     },
     "/r/{room}/display": {

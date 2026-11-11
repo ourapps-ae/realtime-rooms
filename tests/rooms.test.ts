@@ -4,7 +4,7 @@ import { createRoomClass } from "../implementation/server/index";
 import { adapter } from "../fixtures/worker";
 const root = "https://counter.test", base = root + "/r/one";
 const post = (path: string, body: unknown, token = "") => SELF.fetch(base + path, { method: "POST", headers: { authorization: `Bearer ${token}` }, body: JSON.stringify(body) });
-const join = async (name: string): Promise<any> => (await post("/join", { name })).json();
+const join = async (name: string, token = ""): Promise<any> => (await post("/join", { name }, token)).json();
 const state = async (token: string): Promise<any> => (await SELF.fetch(base + "/state", { headers: { authorization: `Bearer ${token}` } })).json();
 const stub = (): DurableObjectStub => env.ROOM.getByName("one");
 beforeEach(async () => { for (const object of [stub(), env.DIRECTORY.getByName("home")]) await runInDurableObject(object, async (_, ctx) => { await ctx.storage.deleteAll(); ctx.abort("reset"); }).catch(() => {}); });
@@ -23,7 +23,7 @@ it("isolates private values and rejects stale actions and display actions", asyn
 });
 
 it("rotates tokens and retains state and directory across restart", async () => {
-  const a = await join("A"), again = await join("A");
+  const a = await join("A"), again = await join("A", a.token);
   expect(again.playerId).toBe(a.playerId);
   expect((await SELF.fetch(base + "/state", { headers: { authorization: `Bearer ${a.token}` } })).status).toBe(401);
   await post("/action", { type: "increment", expectedVersion: again.view.version }, again.token);
@@ -73,6 +73,19 @@ const age = (id: string) => runInDurableObject(stub(), async (instance: unknown)
 it("needs the guest-identity component", () => {
   expect(() => createRoomClass(adapter, {} as never, { applicationId: "x", allowedOrigins: [], roomPrefix: "x-" })).toThrow(/services\.identity/);
   expect(() => createRoomClass(adapter, { identity: {} } as never, { applicationId: "x", allowedOrigins: [], roomPrefix: "x-" })).toThrow(/services\.identity/);
+});
+
+it("gives a seat back only to the token it was given: a join by the name alone is refused", async () => {
+  const a = await join("A");
+  for (const token of ["", "not-a-token"]) {
+    const taken = await post("/join", { name: "A" }, token);
+    expect(taken.status).toBe(409);
+    expect((await taken.json() as any).error).toBe("nameTaken");
+  }
+  expect((await state(a.token)).secret).toBe(`private-${a.playerId}`);
+  const back = await join("A", a.token);
+  expect(back.playerId).toBe(a.playerId);
+  expect((await SELF.fetch(base + "/state", { headers: { authorization: `Bearer ${a.token}` } })).status).toBe(401);
 });
 
 it("refuses a name guest-identity rejects, and frees the name when a player leaves", async () => {

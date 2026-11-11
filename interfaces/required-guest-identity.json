@@ -139,12 +139,23 @@
           "schema": {
             "$ref": "#/components/schemas/Deps"
           }
+        },
+        {
+          "name": "token",
+          "description": "The token the device holds for this name; needed to take back a name in use.",
+          "required": false,
+          "schema": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       ],
       "result": {
         "name": "result",
         "schema": {
-          "description": "badName when the name is not acceptable.",
+          "description": "badName when the name is not acceptable; nameTaken when the name is in use and the token is not its own.",
           "oneOf": [
             {
               "type": "object",
@@ -443,7 +454,7 @@
     },
     {
       "name": "claim",
-      "description": "Takes the name: a new guest (deps.newId) or the same guest returning from any device. Issues a new token; the previous one stops working.",
+      "description": "Takes the name: a new guest (deps.newId) for a free name, or the guest returning with the name's current token (or the one it replaced, within the rotation period). Issues a new token; the previous one stops working. A name in use without its token is refused (nameTaken).",
       "params": [
         {
           "name": "book",
@@ -471,12 +482,23 @@
           "schema": {
             "$ref": "#/components/schemas/IdentitySettings"
           }
+        },
+        {
+          "name": "token",
+          "description": "The token the device holds for this name; needed to take back a name in use. Defaults to none.",
+          "required": false,
+          "schema": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       ],
       "result": {
         "name": "result",
         "schema": {
-          "description": "badName when the name is not acceptable.",
+          "description": "badName when the name is not acceptable; nameTaken when the name is in use and the token is not its own.",
           "oneOf": [
             {
               "type": "object",
@@ -1316,7 +1338,8 @@
             "type": "string",
             "enum": [
               "badName",
-              "badToken"
+              "badToken",
+              "nameTaken"
             ]
           },
           "message": {
