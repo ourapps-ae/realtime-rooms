@@ -263,7 +263,7 @@
     "name": "ourapps-ae/realtime-rooms",
     "sourceRevision": "19905b75dbea89fbfd424d67fe26c81aaed0e018",
     "sourceTreeDigest": "0000000000000000000000000000000000000000000000000000000000000000",
-    "version": "0.6.3"
+    "version": "0.7.0"
   },
   "infrastructure": {
     "accounts": [

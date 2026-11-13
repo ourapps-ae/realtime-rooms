@@ -4,7 +4,7 @@
   "kind": "component",
   "status": "example",
   "package": "ourapps-ae/realtime-rooms",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "ports": [
     {
       "id": "game-adapter",
