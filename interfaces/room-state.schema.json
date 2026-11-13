@@ -189,5 +189,6 @@
     {
       "$ref": "#/$defs/roomLine"
     }
-  ]
+  ],
+  "x-ourapps-modules": {}
 }

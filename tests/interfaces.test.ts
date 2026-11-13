@@ -40,6 +40,9 @@ test("room-session.json (OpenRPC) names exactly what the implementation exports"
   assert.equal(doc.info.title, "ae/room-session");
   const sources: Record<string, string> = {
     typescript: read("implementation/server/index.ts") + read("implementation/server/worker.ts") + read("implementation/web/live.ts"),
+    // a method tagged with one platform is exported by that platform's entry module only
+    server: read("implementation/server/index.ts") + read("implementation/server/worker.ts"),
+    web: read("implementation/web/live.ts"),
     swift: read("implementation/apple/Sources/LiveConnection.swift"),
     kotlin: read("implementation/android/src/main/java/ae/rooms/RoomTransport.kt"),
   };
@@ -49,7 +52,7 @@ test("room-session.json (OpenRPC) names exactly what the implementation exports"
       const source = sources[language];
       const pattern = owner === null ? `export (function|class) ${member}\\b`
         : member === "init" ? `class ${owner}\\b`
-        : language === "typescript" ? `^  ${member}\\(` : `fun(c)? ${member}\\(`;
+        : ["typescript", "server", "web"].includes(language) ? `^  ${member}\\(` : `fun(c)? ${member}\\(`;
       assert.match(source, new RegExp(pattern, "m"), `${language} ${method.name}`);
     }
   }

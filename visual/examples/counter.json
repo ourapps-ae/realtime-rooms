@@ -15,7 +15,7 @@
       "version": "0.6.3",
       "ports": [
         {
-          "id": "game",
+          "id": "game-adapter",
           "name": "Game adapter",
           "direction": "input",
           "kind": "interface",
@@ -35,7 +35,7 @@
           "cardinality": "one"
         },
         {
-          "id": "session",
+          "id": "room-session",
           "name": "Room session",
           "direction": "output",
           "kind": "interface",
@@ -136,7 +136,7 @@
       },
       "target": {
         "instance": "rooms",
-        "port": "game"
+        "port": "game-adapter"
       }
     },
     {
@@ -152,7 +152,7 @@
     {
       "source": {
         "instance": "rooms",
-        "port": "session"
+        "port": "room-session"
       },
       "target": {
         "instance": "browser",

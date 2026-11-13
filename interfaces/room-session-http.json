@@ -754,5 +754,6 @@
         "description": "A player, spectator or display token."
       }
     }
-  }
+  },
+  "x-ourapps-modules": {}
 }

@@ -1,6 +1,6 @@
 # realtime-rooms ownership
 
-Repository: https://github.com/ourapps-ae/realtime-rooms.git (local only; nothing pushed). Package `ourapps-ae/realtime-rooms`, provides `session` (`ae/room-session`), requires `game` (`ae/game-adapter`).
+Repository: https://github.com/ourapps-ae/realtime-rooms.git (local only; nothing pushed). Package `ourapps-ae/realtime-rooms`, provides `room-session` (`ae/room-session`), requires `game-adapter` (`ae/game-adapter`).
 Generic transport belongs here; poker rules and the adapter belong in the OurPoker recipe.
 
 Code: `implementation/server/{adapter,index,worker}.ts`, `implementation/web/live.ts`, `implementation/apple/Sources/LiveConnection.swift`, `implementation/android/src/main/java/ae/rooms/RoomTransport.kt`. `tests/rooms.test.ts` uses an independent counter game; `fixtures/worker.ts` supplies its worker.

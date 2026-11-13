@@ -7,7 +7,7 @@
   "version": "0.6.3",
   "ports": [
     {
-      "id": "game",
+      "id": "game-adapter",
       "name": "Game adapter",
       "direction": "input",
       "kind": "interface",
@@ -27,7 +27,7 @@
       "cardinality": "one"
     },
     {
-      "id": "session",
+      "id": "room-session",
       "name": "Room session",
       "direction": "output",
       "kind": "interface",

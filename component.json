@@ -31,6 +31,12 @@
       "template": false
     },
     {
+      "destination": "components/realtime-rooms/web/index.ts",
+      "executable": false,
+      "source": "implementation/web/index.ts",
+      "template": false
+    },
+    {
       "destination": "components/realtime-rooms/web/live.ts",
       "executable": false,
       "source": "implementation/web/live.ts",
@@ -44,7 +50,13 @@
     ],
     "secrets": [],
     "writes": [
-      "components/realtime-rooms"
+      "components/realtime-rooms/android/src/main/java/ae/rooms/RoomTransport.kt",
+      "components/realtime-rooms/apple/Sources/LiveConnection.swift",
+      "components/realtime-rooms/server/adapter.ts",
+      "components/realtime-rooms/server/index.ts",
+      "components/realtime-rooms/server/worker.ts",
+      "components/realtime-rooms/web/index.ts",
+      "components/realtime-rooms/web/live.ts"
     ]
   },
   "collect": [],
@@ -57,7 +69,7 @@
     ],
     "interfaces": [
       "implementation/server/adapter.ts",
-      "interfaces/required-game.json",
+      "interfaces/required-game-adapter.json",
       "interfaces/required-guest-identity.json",
       "interfaces/required-room-directory-http.json",
       "interfaces/room-session-http.json",
@@ -130,11 +142,15 @@
     },
     {
       "executable": false,
+      "path": "implementation/web/index.ts"
+    },
+    {
+      "executable": false,
       "path": "implementation/web/live.ts"
     },
     {
       "executable": false,
-      "path": "interfaces/required-game.json"
+      "path": "interfaces/required-game-adapter.json"
     },
     {
       "executable": false,
@@ -259,7 +275,7 @@
   "kind": "component",
   "provides": [
     {
-      "id": "session",
+      "id": "room-session",
       "path": "interfaces/room-session.json",
       "type": "ae/room-session",
       "version": "1.0.0"
@@ -267,8 +283,8 @@
   ],
   "requires": [
     {
-      "id": "game",
-      "path": "interfaces/required-game.json",
+      "id": "game-adapter",
+      "path": "interfaces/required-game-adapter.json",
       "type": "ae/game-adapter",
       "version": "1.0.0"
     },

@@ -1,11 +1,11 @@
 # Realtime rooms instructions
 
-Package `ourapps-ae/realtime-rooms` version `0.6.3`. It provides `session` (type `ae/room-session`, version 1.0.0) and requires `game` (type `ae/game-adapter`, version 1.0.0) and `guest-identity` (type `ae/guest-identity`, version 1.0.0).
+Package `ourapps-ae/realtime-rooms` version `0.6.3`. It provides `room-session` (type `ae/room-session`, version 1.0.0) and requires `game-adapter` (type `ae/game-adapter`, version 1.0.0) and `guest-identity` (type `ae/guest-identity`, version 1.0.0).
 
 ## For the agent
 
 - Select this component when the application has private multiplayer rooms with live updates (the recipe's `players` answer is more than one person).
-- Connect the required `game` port to the component that implements `GameAdapter` (in the OurPoker recipe, `turn-engine`). Connect the provided `session` port to `room-directory`, `server-host` and the client transports. The directory object comes from `room-directory`, not from this component. Connect the required `guest-identity` port to the `guest-identity` component: it owns names, tokens and token rotation, and the server code passes its `createIdentityApi(settings)` as `services.identity`.
+- Connect the required `game-adapter` port to the component that implements `GameAdapter` (in the OurPoker recipe, `turn-engine`). Connect the provided `room-session` port to `room-directory`, `server-host` and the client transports. The directory object comes from `room-directory`, not from this component. Connect the required `guest-identity` port to the `guest-identity` component: it owns names, tokens and token rotation, and the server code passes its `createIdentityApi(settings)` as `services.identity`.
 - Settings the recipe supplies: `applicationId`, `allowedOrigins` (exact origins of the web and desktop clients) and `roomPrefix` (including its separator, also used for video rooms).
 - Job: server-host on Cloudflare. Use the `free` profile for small private use and `paid` above 100,000 requests a day (see `suitability.json`). Ask for a Cloudflare account by reference only; never ask for a token value. The `own-hardware` profile applies when `server-host` runs the rooms on Node.
 - Data is kept: room state lives in Durable Object storage. See `migration.json` before moving it.

@@ -6,7 +6,7 @@ import Foundation
 // made. `onDown` says whether the server cannot be reached: an attempt that never opened,
 // until one does.
 @MainActor
-final class LiveConnection<Message> {
+public final class LiveConnection<Message> {
     private let url: URL
     private let hello: () -> String?
     private let onMessage: (Message) -> Void
